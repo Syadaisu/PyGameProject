@@ -3,10 +3,13 @@ from button import Button
 
 pygame.init()
 
-SCREEN = pygame.display.set_mode((1280, 720))
+WIDTH, HEIGHT = 1280, 720
+
+SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Menu")
 
-BG = pygame.image.load("assets/Background.png")
+BG = pygame.transform.scale(pygame.image.load(pygame.image.load("assets/Background.png")), (WIDTH, HEIGHT))
+PLAY_BG = pygame.transform.scale(pygame.image.load("assets/Play_Background.gif"), (WIDTH, HEIGHT))
 
 
 def get_font(size):  # Returns Press-Start-2P in the desired size
@@ -18,9 +21,10 @@ def play():
         PLAY_MOUSE_POS = pygame.mouse.get_pos()
 
         SCREEN.fill("black")
-
-        PLAY_TEXT = get_font(45).render("This is the PLAY screen.", True, "White")
+        USER_HP=40
+        PLAY_TEXT = get_font(45).render(f"This is the PLAY screen.{USER_HP}", True, "White")
         PLAY_RECT = PLAY_TEXT.get_rect(center=(640, 260))
+        SCREEN.blit(PLAY_BG, (0, 0))
         SCREEN.blit(PLAY_TEXT, PLAY_RECT)
 
         PLAY_BACK = Button(image=None, pos=(640, 460),
