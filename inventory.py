@@ -12,9 +12,13 @@ class Inventory:
         if item in self.items:
             self.items[item] -= quantity
             if self.items[item] <= 0:
-                del self.items[item]
+                self.items[item] = 0
         else:
             print("Item not in inventory")
-
+    def get_item(self, item):
+        if item in self.items:
+            return self.items[item]
+        else:
+            return 0
     def get_inventory(self):
         return self.items

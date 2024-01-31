@@ -12,6 +12,7 @@ from sprites.Enemy import Enemy
 from sprites.Attack import Attack
 from sprites.Spritesheet import Spritesheet
 from popup import *
+import random
 
 
 class Game:
@@ -27,6 +28,7 @@ class Game:
         self.inventory = Inventory()
         self.inventory.add_item("Sword")
         self.inventory.add_item("Health Potion", 2)
+        self.inventory.add_item("Gold",10)
         self.font = pygame.font.Font("assets/font.ttf", 32)
         self.character_spritesheet = Spritesheet("assets/Check4.png")
         self.terrain_spritesheet = Spritesheet("assets/terrain.png")
@@ -43,6 +45,12 @@ class Game:
                     Block(self, j, i)
                 if column == 'P':
                     self.player=Player(self, j, i)
+                if column == 'E':
+                    Enemy(self, j, i,20)
+                    
+    def createEnemy(self):
+        for i,row in enumerate(tilemap):
+            for j,column in enumerate(row):
                 if column == 'E':
                     Enemy(self, j, i,20)
 
@@ -67,6 +75,8 @@ class Game:
                 self.running = False
                 
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_p:  # Press 'P' to use a potion
+                    self.use_potion()
                 if event.key == pygame.K_SPACE:
                     if self.player.facing =='up':
                         attack = Attack(self, self.player.rect.x, self.player.rect.y - TILESIZE, self.player.stats.strength, PLAYER_LAYER, self.attacks)
@@ -83,7 +93,14 @@ class Game:
         for enemy in self.enemies:  # Assuming self.game.enemies is a list of Enemy objects
             enemy.is_player_in_range(self.player)
 
-
+    def use_potion(self):
+        if 'Health Potion' in self.inventory.get_inventory():  # Check if there are any potions
+            self.inventory.remove_item('Health Potion')  # Use one potion
+            self.player.stats.health += 5  # Increase health by 50
+            if self.player.stats.health > self.player.stats.max_health:  # Don't exceed max health
+                self.player.stats.health = self.player.stats.max_health
+    
+    
     def draw(self):
         font = pygame.font.Font(None, 32)  # Create a font object
         self.screen.fill("black")
@@ -94,7 +111,7 @@ class Game:
         inventory_text = "Inventory: " + ", ".join(f"{item}: {quantity}" for item, quantity in self.inventory.get_inventory().items())
         text_surface = font.render(inventory_text, True, (255, 255, 255))  # Create a surface with the inventory text
         player_stats_text = "Player Stats: " + ", ".join(f"{stat}: {value}" for stat, value in vars(self.player.stats).items())
-        player_stats_text += f", Gold: {self.player.gold}, XP: {self.player.xp}"
+        player_stats_text += f", XP: {self.player.xp}"
         player_stats_surface = font.render(player_stats_text, True, (255, 255, 255))  # Create a surface with the player stats text
         self.screen.blit(player_stats_surface, (10, 50))  # Draw the player stats text on the screen
         self.screen.blit(text_surface, (10, 10))  # Draw the inventory text on the screen
@@ -167,8 +184,13 @@ class Game:
 
     def game_over(self):
         pass
+    
+    def get_random_position(self):
+        x = random.randint(0, WIDTH - 100)  # Replace 'self.width' with the width of your game window
+        y = random.randint(0, HEIGHT - 221)  # Replace 'self.height' with the height of your game window
+        return x, y
 
-    def main_menu(self):
+    def game_loop(self):
         
         while self.playing:
             mouse_pos = pygame.mouse.get_pos()
@@ -179,6 +201,10 @@ class Game:
             self.events()
             self.draw()
             self.update()
+            if len(self.enemies) < 3:
+                self.createEnemy()
+
+            pygame.display.flip()
             if self.player.stats.health <= 0:
                 self.playing = False
                 print("Player has died")
@@ -211,19 +237,19 @@ class Game:
                     shop_running = False
 
                 if sword_button.is_pressed(mouse_pos, mouse_pressed, self.inventory, shop):
-                    if self.player.gold >= 10:
+                    if self.inventory.get_item('Gold') >= 10:
                         print("Bought a sword")
+                        self.inventory.remove_item('Gold',10)
                         self.player.stats.strength += 1
-                        self.player.gold -= 10
                     else:
                         show_popup = True
                         message = "You don't have enough gold to buy a sword"
                         print("Not enough gold")
 
                 if health_potion_button.is_pressed(mouse_pos, mouse_pressed, self.inventory, shop):
-                    if self.player.gold >= 5:
+                    if self.inventory.get_item('Gold') >= 5:
                         print("Bought a health potion")
-                        self.player.gold -= 5
+                        self.inventory.remove_item('Gold',5)
                     else: 
                         show_popup = True
                         message = "You don't have enough gold to buy a health potion"
@@ -255,7 +281,7 @@ g.new()
 inventory = Inventory()
 
 while g.running:
-    g.main_menu()
+    g.game_loop()
     mouse_pos = pygame.mouse.get_pos()
     mouse_pressed = pygame.mouse.get_pressed()
     g.game_over()

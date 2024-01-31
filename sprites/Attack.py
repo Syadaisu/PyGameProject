@@ -51,8 +51,8 @@ class Attack(pygame.sprite.Sprite):
         target.stats.health -= self.damage
         if target.stats.health <= 0:
             if isinstance(target, Enemy):
-                self.game.player.gold += target.gold  # Increase the player's gold
-                self.game.player.xp += target.xp  # Increase the player's xp
+                self.game.inventory.add_item('Gold', target.gold)  # Increase the player's gold
+                self.game.player.gain_xp(target.xp)  # Increase the player's xp
             target.kill()
         
     def animate(self):

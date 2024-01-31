@@ -34,6 +34,9 @@ class Enemy(pygame.sprite.Sprite):
         self.movement_loop = 0
         self.max_travel = random.randint(10, 50)
         
+        self.last_attack_time = pygame.time.get_ticks()  # Initialize to current time
+        self.attack_cooldown = 2000  # Cooldown period in milliseconds
+        
         
         self.image = self.game.skeleton_spritesheet.getSprite(0, 0, self.width, self.height)
         self.image.set_colorkey("black")
@@ -155,7 +158,8 @@ class Enemy(pygame.sprite.Sprite):
         dx = self.rect.x - player.rect.x
         dy = self.rect.y - player.rect.y
         distance = math.sqrt(dx**2 + dy**2)
-        if distance <= TILESIZE*2:
+        current_time = pygame.time.get_ticks()
+        if distance <= TILESIZE*2 and current_time - self.last_attack_time > self.attack_cooldown:
             if self.facing =='up':
                 attack = Attack(self.game, self.rect.x, self.rect.y - TILESIZE, self.stats.strength, ENEMY_LAYER, self.game.enemy_attacks)
                 attack.attacker = self  # Set the attacker
@@ -168,6 +172,7 @@ class Enemy(pygame.sprite.Sprite):
             if self.facing =='right':
                 attack = Attack(self.game, self.rect.x + TILESIZE, self.rect.y , self.stats.strength, ENEMY_LAYER, self.game.enemy_attacks)
                 attack.attacker = self  # Set the attacker
+            self.last_attack_time = current_time  # Update the last attack time
         else:
             return False
         

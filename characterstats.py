@@ -3,6 +3,7 @@ class CharacterStats:
         self.health = health
         self.strength = strength
         self.level = level
+        self.max_health = health
 
     def increase_stat(self, stat, amount):
         if hasattr(self, stat):
