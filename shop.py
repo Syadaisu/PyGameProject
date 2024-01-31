@@ -1,4 +1,4 @@
-from sprites import Button
+from sprites.Button import Button
 
 class Shop:
     def __init__(self):

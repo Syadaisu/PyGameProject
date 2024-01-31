@@ -1,8 +1,8 @@
 class PlayerStats:
-    def __init__(self, health=100, strength=10, defense=10):
+    def __init__(self, health, strength, level):
         self.health = health
         self.strength = strength
-        self.defense = defense
+        self.level = level
 
     def increase_stat(self, stat, amount):
         if hasattr(self, stat):
