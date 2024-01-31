@@ -1,19 +1,23 @@
 import pygame
 from config import *
 import random
+from sprites.Attack import Attack
+import math
+from characterstats import CharacterStats
 
 class Enemy(pygame.sprite.Sprite):
+    
     def __init__(self, game,x,y,health):
         self.groups = game.all_sprites, game.enemies
         self._layer = ENEMY_LAYER
         self.game = game
-        self.health = health
-        self.damage = 1
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.x = x * TILESIZE                                                                                                                                                                                                   
         self.y = y * TILESIZE
         self.width = TILESIZE
         self.height = TILESIZE
+        
+        self.stats = CharacterStats(20,1,1)
         
         self.change_direction_delay = 0
         
@@ -146,4 +150,24 @@ class Enemy(pygame.sprite.Sprite):
             if pygame.sprite.spritecollide(self, enemies, False):
                 self.facing = random.choice(["up", "down", "left", "right"])
                 self.y_change = 0
-    
+            
+    def is_player_in_range(self, player):
+        dx = self.rect.x - player.rect.x
+        dy = self.rect.y - player.rect.y
+        distance = math.sqrt(dx**2 + dy**2)
+        if distance <= TILESIZE*2:
+            if self.facing =='up':
+                attack = Attack(self.game, self.rect.x, self.rect.y - TILESIZE, self.stats.strength, ENEMY_LAYER, self.game.enemy_attacks)
+                attack.attacker = self  # Set the attacker
+            if self.facing =='down':
+                attack = Attack(self.game, self.rect.x, self.rect.y + TILESIZE, self.stats.strength, ENEMY_LAYER, self.game.enemy_attacks)
+                attack.attacker = self  # Set the attacker
+            if self.facing =='left':
+                attack = Attack(self.game, self.rect.x - TILESIZE, self.rect.y , self.stats.strength, ENEMY_LAYER, self.game.enemy_attacks)
+                attack.attacker = self  # Set the attacker
+            if self.facing =='right':
+                attack = Attack(self.game, self.rect.x + TILESIZE, self.rect.y , self.stats.strength, ENEMY_LAYER, self.game.enemy_attacks)
+                attack.attacker = self  # Set the attacker
+        else:
+            return False
+        

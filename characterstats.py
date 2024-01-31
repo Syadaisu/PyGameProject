@@ -1,4 +1,4 @@
-class PlayerStats:
+class CharacterStats:
     def __init__(self, health, strength, level):
         self.health = health
         self.strength = strength

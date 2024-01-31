@@ -1,6 +1,6 @@
 import pygame
 from config import *
-from playerstats import PlayerStats
+from characterstats import CharacterStats
 import time
 
 class Player(pygame.sprite.Sprite):
@@ -28,7 +28,7 @@ class Player(pygame.sprite.Sprite):
 
         self.image = self.game.character_spritesheet.getSprite(0, 64, self.width, self.height)
 
-        self.stats = PlayerStats(10,1,1)  # Add this line to create a PlayerStats object for the player   
+        self.stats = CharacterStats(10,1,1)  # Add this line to create a PlayerStats object for the player   
 
         self.rect = self.image.get_rect()
         self.rect.x = x * TILESIZE

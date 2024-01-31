@@ -2,13 +2,13 @@ import pygame
 from config import *
 
 class Attack(pygame.sprite.Sprite):
-    def __init__(self,game,x,y, damage):
+    def __init__(self,game,x,y, damage, layer, group):
         self.game = game
-        self._layer = PLAYER_LAYER
-        self.groups = game.all_sprites, game.attacks
+        self._layer = layer
+        self.groups = game.all_sprites, group
         pygame.sprite.Sprite.__init__(self, self.groups)
         
-        self.damage = self.game.player.stats.strength
+        self.damage = damage
         self.x = x
         self.y = y
         self. width = TILESIZE
@@ -26,16 +26,34 @@ class Attack(pygame.sprite.Sprite):
         
     def update(self):
         self.animate()
-        self.collide()
+        # For enemies
+        self.collide_with_group(self.game.enemies)
+
+        # For players
+        self.collide_with_sprite(self.game.player)
         
-    def collide(self):
-        hits = pygame.sprite.spritecollide(self, self.game.enemies, False)
-        for enemy in hits:
-            enemy.health -= self.damage
-            if enemy.health <= 0:
-                self.game.player.gold += enemy.gold  # Increase the player's gold
-                self.game.player.xp += enemy.xp  # Increase the player's xp
-                enemy.kill()
+    def collide_with_group(self, target_group):
+        hits = pygame.sprite.spritecollide(self, target_group, False)
+        for target in hits:
+            self.handle_collision(target)
+            
+    def collide_with_sprite(self, target):
+        if pygame.sprite.collide_rect(self, target):
+            self.handle_collision(target)
+            
+    def handle_collision(self, target):
+        from sprites.Enemy import Enemy  # Import inside function
+
+        # If the target is the same as the attacker, don't apply any damage
+        if target == self.attacker:
+            return
+
+        target.stats.health -= self.damage
+        if target.stats.health <= 0:
+            if isinstance(target, Enemy):
+                self.game.player.gold += target.gold  # Increase the player's gold
+                self.game.player.xp += target.xp  # Increase the player's xp
+            target.kill()
         
     def animate(self):
         now = pygame.time.get_ticks()

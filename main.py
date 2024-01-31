@@ -53,18 +53,12 @@ class Game:
         self.buildings = pygame.sprite.LayeredUpdates()
         self.enemies = pygame.sprite.LayeredUpdates()
         self.attacks = pygame.sprite.LayeredUpdates()
+        self.enemy_attacks = pygame.sprite.LayeredUpdates()
         self.createTilemap()
 
     def update(self):
         self.all_sprites.update()
-        self.check_collisions()
 
-    def check_collisions(self):
-        for enemy in self.enemies:  # Assuming self.enemies is a list of Enemy objects
-            if self.player.rect.colliderect(enemy.rect):
-                self.player.stats.health -= enemy.damage
-                if self.player.stats.health <= 0:
-                    print("Player has died")
     
     def events(self):
         for event in pygame.event.get():
@@ -75,13 +69,20 @@ class Game:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     if self.player.facing =='up':
-                        Attack(self, self.player.rect.x, self.player.rect.y - TILESIZE,1)
+                        attack = Attack(self, self.player.rect.x, self.player.rect.y - TILESIZE, self.player.stats.strength, PLAYER_LAYER, self.attacks)
+                        attack.attacker = self.player  # Set the attacker
                     if self.player.facing =='down':
-                        Attack(self, self.player.rect.x, self.player.rect.y + TILESIZE,1)
+                        attack = Attack(self, self.player.rect.x, self.player.rect.y + TILESIZE, self.player.stats.strength, PLAYER_LAYER, self.attacks)
+                        attack.attacker = self.player  # Set the attacker
                     if self.player.facing =='left':
-                        Attack(self, self.player.rect.x - TILESIZE, self.player.rect.y,1)
+                        attack = Attack(self, self.player.rect.x - TILESIZE, self.player.rect.y , self.player.stats.strength, PLAYER_LAYER, self.attacks)
+                        attack.attacker = self.player  # Set the attacker
                     if self.player.facing =='right':
-                        Attack(self, self.player.rect.x + TILESIZE, self.player.rect.y,1)
+                        attack = Attack(self, self.player.rect.x + TILESIZE, self.player.rect.y , self.player.stats.strength, PLAYER_LAYER, self.attacks)
+                        attack.attacker = self.player  # Set the attacker
+        for enemy in self.enemies:  # Assuming self.game.enemies is a list of Enemy objects
+            enemy.is_player_in_range(self.player)
+
 
     def draw(self):
         font = pygame.font.Font(None, 32)  # Create a font object
