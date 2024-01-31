@@ -2,6 +2,7 @@ import pygame
 from config import *
 import math
 import random
+from playerstats import PlayerStats
 
 class Spritesheet:
     def __init__(self, filename):
@@ -30,8 +31,9 @@ class Player(pygame.sprite.Sprite):
 
         self.facing = "down"
 
-        self.image = self.game.character_spritesheet.getSprite(3, 2, self.width, self.height)
+        self.image = self.game.character_spritesheet.getSprite(0, 64, self.width, self.height)
 
+        self.stats = PlayerStats()  # Add this line to create a PlayerStats object for the player   
 
         self.rect = self.image.get_rect()
         self.rect.x = x * TILESIZE

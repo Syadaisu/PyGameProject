@@ -2,6 +2,9 @@ import pygame
 from sprites import *
 from config import *
 import sys
+import time
+from inventory import *
+from shop import *
 
 
 class Game:
@@ -10,13 +13,18 @@ class Game:
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption("Game")
         self.clock = pygame.time.Clock()
+        self.shop_button = Button(550,650, 150, 50, "white", "#5A5A5A", "Shop", 32)
         self.running = True
         self.intro = True
         self.options=False
+        self.inventory = Inventory()
+        self.inventory.add_item("Sword")
+        self.inventory.add_item("Health Potion", 2)
         self.font = pygame.font.Font("assets/font.ttf", 32)
-        self.character_spritesheet = Spritesheet("assets/character.png")
+        self.character_spritesheet = Spritesheet("assets/Check4.png")
         self.terrain_spritesheet = Spritesheet("assets/terrain.png")
         self.intro_background = pygame.transform.scale(pygame.image.load("assets/background.png"), (WIDTH, HEIGHT))
+        self.player = None
 
     def createTilemap(self):
         for i,row in enumerate(tilemap):
@@ -25,7 +33,7 @@ class Game:
                 if column == 'B':
                     Block(self, j, i)
                 if column == 'P':
-                    Player(self, j, i)
+                    self.player=Player(self, j, i)
 
     def new(self):
         self.playing = True
@@ -44,9 +52,18 @@ class Game:
                 self.running = False
 
     def draw(self):
+        font = pygame.font.Font(None, 32)  # Create a font object
         self.screen.fill("black")
         self.all_sprites.draw(self.screen)
+        pygame.draw.rect(self.screen, (128, 128, 128), pygame.Rect(0, self.screen.get_height() - 100, self.screen.get_width(), 100))  # Draw a grey rectangle at the bottom
+        self.screen.blit(self.shop_button.image, self.shop_button.rect)
         self.clock.tick(FPS)
+        inventory_text = "Inventory: " + ", ".join(f"{item}: {quantity}" for item, quantity in self.inventory.get_inventory().items())
+        text_surface = font.render(inventory_text, True, (255, 255, 255))  # Create a surface with the inventory text
+        player_stats_text = "Player Stats: " + ", ".join(f"{stat}: {value}" for stat, value in vars(self.player.stats).items())
+        player_stats_surface = font.render(player_stats_text, True, (255, 255, 255))  # Create a surface with the player stats text
+        self.screen.blit(player_stats_surface, (10, 50))  # Draw the player stats text on the screen
+        self.screen.blit(text_surface, (10, 10))  # Draw the inventory text on the screen
         pygame.display.update()
 
     def intro_screen(self):
@@ -118,13 +135,56 @@ class Game:
         pass
 
     def main_menu(self):
+        
         while self.playing:
+            mouse_pos = pygame.mouse.get_pos()
+            mouse_pressed = pygame.mouse.get_pressed()
+
+            if self.shop_button.is_pressed(mouse_pos, mouse_pressed):
+                self.shop_menu()
             self.events()
             self.draw()
             self.update()
-        self.running = False
+            self.screen.fill("black")
+            self.all_sprites.draw(self.screen)
+            
+            self.clock.tick(FPS)
+        self.running=False
 
+    def shop_menu(self):
+        shop = Shop()
+        back_button = Button(350, 550, 150, 50, "white", "#5A5A5A", "Back", 32)
+        sword_button = ShopButton(100, 100, 150, 50, "white", "#5A5A5A", "Sword", 32)
+        health_potion_button = ShopButton(100, 150, 150, 50, "white", "#5A5A5A", "Health Potion", 32)
 
+        shop_running = True
+        while shop_running:
+            mouse_pos = pygame.mouse.get_pos()
+            mouse_pressed = pygame.mouse.get_pressed()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    shop_running = False
+                    self.running = False
+
+            if back_button.is_pressed(mouse_pos, mouse_pressed):
+                shop_running = False
+
+            if sword_button.is_pressed(mouse_pos, mouse_pressed, self.inventory, shop):
+                print("Bought a sword")
+                time.sleep(0.2)
+
+            if health_potion_button.is_pressed(mouse_pos, mouse_pressed, self.inventory, shop):
+                print("Bought a health potion")
+                time.sleep(0.2)
+
+            self.screen.fill("black")
+            self.screen.blit(back_button.image, back_button.rect)
+            self.screen.blit(sword_button.image, sword_button.rect)
+            self.screen.blit(health_potion_button.image, health_potion_button.rect)
+
+            self.clock.tick(FPS)
+            pygame.display.update()
 
 
 g = Game()
@@ -133,8 +193,12 @@ while g.intro:
     if g.options:
         g.options_screen()
 g.new()
+inventory = Inventory()
+
 while g.running:
     g.main_menu()
+    mouse_pos = pygame.mouse.get_pos()
+    mouse_pressed = pygame.mouse.get_pressed()
     g.game_over()
 
 pygame.quit()
