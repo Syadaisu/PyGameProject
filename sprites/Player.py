@@ -15,7 +15,6 @@ class Player(pygame.sprite.Sprite):
         self.height = TILESIZE
         self.invulnerable_until = 0
         
-        self.level = 1  # The player's current level
         self.xp = 0  # The player's current xp
         self.xp_to_next_level = 100  # The amount of xp needed to level up
         self.current_frame = 0
@@ -29,7 +28,7 @@ class Player(pygame.sprite.Sprite):
 
         self.image = self.game.character_spritesheet.getSprite(0, 64, self.width, self.height)
 
-        self.stats = CharacterStats(self.level*15,self.game.inventory.get_item('Sword'),self.level)  # Add this line to create a PlayerStats object for the player   
+        self.stats = CharacterStats(1*15,self.game.inventory.get_item('Sword'),1)  # Add this line to create a PlayerStats object for the player   
 
         self.rect = self.image.get_rect()
         self.rect.x = x * TILESIZE
@@ -57,7 +56,7 @@ class Player(pygame.sprite.Sprite):
             self.level_up()
             
     def level_up(self):
-        self.level += 1
+        self.stats.level += 1
         self.xp -= self.xp_to_next_level  # Subtract the XP needed for the last level
         self.xp_to_next_level *= 2  # Double the XP needed for the next level
         self.stats.max_health += 10 # Increase max health by 10

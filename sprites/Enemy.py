@@ -7,29 +7,30 @@ from characterstats import CharacterStats
 
 class Enemy(pygame.sprite.Sprite):
     
-    def __init__(self, game,x,y,health):
+    def __init__(self, game,x,y,level,sprite_sheet):
         self.groups = game.all_sprites, game.enemies
         self._layer = ENEMY_LAYER
         self.game = game
+        self.sprite_sheet = sprite_sheet
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.x = x * TILESIZE                                                                                                                                                                                                   
         self.y = y * TILESIZE
         self.width = TILESIZE
         self.height = TILESIZE
         
-        self.stats = CharacterStats(20,1,1)
+        self.stats = CharacterStats(level*3,level*1.5,level)
         
         self.change_direction_delay = 0
         
         self.x_change = 0
         self.y_change = 0
         
-        self.gold = random.randint(5, 15)
-        self.xp = random.randint(1, 15)
+        self.gold = random.randint(5, 15)*level
+        self.xp = random.randint(7, 17)*(level*1.5)
         
         self.current_frame = 0
         self.last_update = pygame.time.get_ticks()
-        self.animate_speed = 200
+        self.animate_speed = 100
         
         self.movement_loop = 0
         self.max_travel = random.randint(10, 50)
@@ -38,7 +39,7 @@ class Enemy(pygame.sprite.Sprite):
         self.attack_cooldown = 2000  # Cooldown period in milliseconds
         
         
-        self.image = self.game.skeleton_spritesheet.getSprite(0, 0, self.width, self.height)
+        self.image = sprite_sheet.getSprite(0, 0, self.width, self.height)
         self.image.set_colorkey("black")
         
         self.facing = random.choice(["up", "down", "left", "right"])
@@ -64,43 +65,63 @@ class Enemy(pygame.sprite.Sprite):
 
         
     def movement(self):
-        if self.facing == "up":
-            self.y_change -= ENEMY_SPEED
-            self.movement_loop -= 1
-            if self.movement_loop <= -self.max_travel:
-                self.facing = random.choice(["up", "down", "left", "right"])
-        if self.facing == "down":
-            self.y_change += ENEMY_SPEED
-            self.movement_loop += 1
-            if self.movement_loop >= self.max_travel:
-                self.facing = random.choice(["up", "down", "left", "right"])
-        if self.facing == "left":
-            self.x_change -= ENEMY_SPEED
-            self.movement_loop -= 1
-            if self.movement_loop <= -self.max_travel:
-                self.facing = random.choice(["up", "down", "left", "right"])
-        if self.facing == "right":
-            self.x_change += ENEMY_SPEED
-            self.movement_loop += 1
-            if self.movement_loop >= self.max_travel:
-                self.facing = random.choice(["up", "down", "left", "right"])
+        dx = self.game.player.rect.x - self.rect.x
+        dy = self.game.player.rect.y - self.rect.y
+        distance = math.sqrt(dx**2 + dy**2)
+
+    # If the player is close enough, move towards the player
+        if distance < 100:  # Replace 100 with the desired distance threshold
+            if dx > 0:  # Player is to the right
+                self.facing = "right"
+                self.x_change += ENEMY_SPEED
+            elif dx < 0:  # Player is to the left
+                self.facing = "left"
+                self.x_change -= ENEMY_SPEED
+            if dy > 0:  # Player is below
+                self.y_change += ENEMY_SPEED
+                self.facing = "down"
+            elif dy < 0:  # Player is above
+                self.y_change -= ENEMY_SPEED
+                self.facing = "up"
+        else:
+            
+            if self.facing == "up":
+                self.y_change -= ENEMY_SPEED
+                self.movement_loop -= 1
+                if self.movement_loop <= -self.max_travel:
+                    self.facing = random.choice(["up", "down", "left", "right"])
+            if self.facing == "down":
+                self.y_change += ENEMY_SPEED
+                self.movement_loop += 1
+                if self.movement_loop >= self.max_travel:
+                    self.facing = random.choice(["up", "down", "left", "right"])
+            if self.facing == "left":
+                self.x_change -= ENEMY_SPEED
+                self.movement_loop -= 1
+                if self.movement_loop <= -self.max_travel:
+                    self.facing = random.choice(["up", "down", "left", "right"])
+            if self.facing == "right":
+                self.x_change += ENEMY_SPEED
+                self.movement_loop += 1
+                if self.movement_loop >= self.max_travel:
+                    self.facing = random.choice(["up", "down", "left", "right"])
     
     
     
     def animate(self):
         now = pygame.time.get_ticks()
-        down_animations = [self.game.skeleton_spritesheet.getSprite(0, 0, self.width, self.height),
-                           self.game.skeleton_spritesheet.getSprite(32, 0, self.width, self.height),
-                           self.game.skeleton_spritesheet.getSprite(64, 0, self.width, self.height)]
-        up_animations = [self.game.skeleton_spritesheet.getSprite(0, 96, self.width, self.height),
-                            self.game.skeleton_spritesheet.getSprite(32, 96, self.width, self.height),
-                            self.game.skeleton_spritesheet.getSprite(64, 96, self.width, self.height)]
-        left_animations = [self.game.skeleton_spritesheet.getSprite(0, 32, self.width, self.height),
-                            self.game.skeleton_spritesheet.getSprite(32, 32, self.width, self.height),
-                            self.game.skeleton_spritesheet.getSprite(64, 32, self.width, self.height)]
-        right_animations = [self.game.skeleton_spritesheet.getSprite(0, 64, self.width, self.height),
-                            self.game.skeleton_spritesheet.getSprite(32, 64, self.width, self.height),
-                            self.game.skeleton_spritesheet.getSprite(64, 64, self.width, self.height)]
+        down_animations = [self.sprite_sheet.getSprite(0, 0, self.width, self.height),
+                           self.sprite_sheet.getSprite(32, 0, self.width, self.height),
+                           self.sprite_sheet.getSprite(64, 0, self.width, self.height)]
+        up_animations = [self.sprite_sheet.getSprite(0, 96, self.width, self.height),
+                            self.sprite_sheet.getSprite(32, 96, self.width, self.height),
+                            self.sprite_sheet.getSprite(64, 96, self.width, self.height)]
+        left_animations = [self.sprite_sheet.getSprite(0, 32, self.width, self.height),
+                            self.sprite_sheet.getSprite(32, 32, self.width, self.height),
+                            self.sprite_sheet.getSprite(64, 32, self.width, self.height)]
+        right_animations = [self.sprite_sheet.getSprite(0, 64, self.width, self.height),
+                            self.sprite_sheet.getSprite(32, 64, self.width, self.height),
+                            self.sprite_sheet.getSprite(64, 64, self.width, self.height)]
         
         if now - self.last_update > self.animate_speed:  # Time to update the frame
             self.last_update = now
