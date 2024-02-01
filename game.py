@@ -139,12 +139,12 @@ class Game:
         self.screen.blit(potion_text, (800, 676))
         
         
-        draw_gold(self,self.inventory.get_item('Gold'), 190, 620)
-        draw_hp(self,self.player.stats.health, self.player.stats.max_health, 190, 660)
+        draw_gold(self,self.inventory.get_item('Gold'), 170, 620)
+        draw_hp(self,self.player.stats.health, self.player.stats.max_health, 170, 660)
         draw_xp(self,self.player.xp, self.player.xp_to_next_level, 290, 620)
         draw_level(self,self.player.stats.level, 290, 660)
-        draw_strenght(self,self.player.stats.strength, 390, 620)
-        draw_potions(self,self.inventory.get_item('Health Potion'), 390, 660)
+        draw_strenght(self,self.player.stats.strength, 410, 620)
+        draw_potions(self,self.inventory.get_item('Health Potion'), 410, 660)
         
         pygame.display.update()
 
