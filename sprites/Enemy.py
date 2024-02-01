@@ -18,7 +18,7 @@ class Enemy(pygame.sprite.Sprite):
         self.width = TILESIZE
         self.height = TILESIZE
         
-        self.stats = CharacterStats(level*3,level*1.5,level)
+        self.stats = CharacterStats(level*3,level,level)
         
         self.change_direction_delay = 0
         

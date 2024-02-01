@@ -28,7 +28,7 @@ class Player(pygame.sprite.Sprite):
 
         self.image = self.game.character_spritesheet.getSprite(0, 64, self.width, self.height)
 
-        self.stats = CharacterStats(1*15,self.game.inventory.get_item('Sword'),1)  # Add this line to create a PlayerStats object for the player   
+        self.stats = CharacterStats(1*15,self.game.inventory.get_item('Sword Upgrade'),1)  # Add this line to create a PlayerStats object for the player   
 
         self.rect = self.image.get_rect()
         self.rect.x = x * TILESIZE

@@ -6,14 +6,15 @@ from shop import *
 from sprites.Spritesheet import Spritesheet
 from popup import *
 from game import Game
+from ui import *
 
 
 g = Game()
 while g.intro:
-    g.intro_screen()
+    intro_screen(g)
     if g.options:
         g.options_screen()
-chosen_sprite = g.choose_player_sprite()
+chosen_sprite = choose_player_sprite()
 print(f'You chose: {chosen_sprite}')
 g.character_spritesheet = Spritesheet(f'{chosen_sprite}')
 g.new()
@@ -23,7 +24,7 @@ while g.running:
     g.game_loop()
     mouse_pos = pygame.mouse.get_pos()
     mouse_pressed = pygame.mouse.get_pressed()
-    g.game_over()
+    game_over(g)
 
 pygame.quit()
 sys.exit()

@@ -2,7 +2,7 @@ from sprites.Button import Button
 
 class Shop:
     def __init__(self):
-        self.items = {"Sword": 10, "Health Potion": 5}  # Items for sale and their prices
+        self.items = {"Sword Upgrade": 100, "Health Potion": 25}  # Items for sale and their prices
 
     def buy_item(self, item, inventory):
         if item in self.items:
